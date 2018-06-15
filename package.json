@@ -1,6 +1,6 @@
 {
   "name": "cshock",
-  "version": "1",
+  "version": "0.0.1",
   "description": "estim proxy",
   "main": "server.js",
   "private": true,
