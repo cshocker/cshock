@@ -2,18 +2,16 @@ var net = require('net');
 
 var Server = {};
 
-var myServer = net.createServer(function(socket) {
-	Server.me = socket;
-	socket.pipe(socket);	
-});
+const port = process.env.OPENSHIFT_NODEJS_PORT || 8080
+const ip = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1'
 
-myServer.listen(781, '85.25.199.86');
+function setClient(socket){
+	Server.next(socket);
+}
 
-
-
-var herServer = net.createServer(function(socket) {
+Server.setHer = function(socket){
 	Server.her = socket;
-	socket.pipe(socket);	
+	socket.pipe(socket);
 
 	Server.her.on('data', function(data) {
 		console.log("her:"+data);
@@ -32,6 +30,18 @@ var herServer = net.createServer(function(socket) {
 	Server.me.on('close', function() {
 		console.log("my connection closed");
 	});
-});
+}
 
-herServer.listen(782, '85.25.199.86');
+Server.setMe = function (socket){
+	Server.me = socket;
+	Server.next = Server.setHer;
+	socket.pipe(socket);
+}
+
+Server.next = Server.setMe;
+
+var myServer = net.createServer(setClient);
+
+
+myServer.listen(port,ip);
+
